@@ -79,36 +79,52 @@ def checked(todos_checkbox):
 
 
 # ---> Remove todo & destroy parent_frame
+
 def remove_todo(todos_frame):
-    
-    # Locate Index to remove & do notthing if not found
-    for index, (todo, todos_checkbox, todos_frame) in enumerate(todos_data):
-        if todos_frame:
-            todos_data.pop(index)
+
+    # Find the task whose frame was selected
+    index_to_remove = -1
+
+    for index, (todo, checkbox, frame) in enumerate(todos_data):
+        if frame == todos_frame:
+            index_to_remove = index
             break
-    else:
+
+    # If frame was not found, do nothing
+    if index_to_remove == -1:
         return
 
-    # Check for unmarked & prompt to cancel or proceed 
-    if not todos_checkbox.get():
-            
-        # Confirmation MsgBox
-        response = CTkMessagebox(title="MyTodos-Confirm", 
-                                     message="Check you! todo's not done. Remove anyway?",
-                                     fg_color="#000000", 
-                                     icon="warning", 
-                                     option_1="Yes", option_2="No",
-                                     width=300, height=150).get()
+    todo, checkbox, frame = todos_data[index_to_remove]
 
-        # Remove frame if yes from todos_data
-        if response == "Yes":
-            todos_frame.destroy()
+    # Ask confirmation if task is not completed
+    if not checkbox.get():
 
-    # Refresh & reposition remaining frames, & update progress_button
-    for i, (todo, todos_checkbox, todos_frame) in enumerate(todos_data):                      
-        todos_frame.grid(row=i, column=0, padx=5, pady=5)
+        response = CTkMessagebox(
+            title="MyTodos-Confirm",
+            message="Check you! todo's not done. Remove anyway?",
+            fg_color="#000000",
+            icon="warning",
+            option_1="Yes",
+            option_2="No",
+            width=300,
+            height=150
+        ).get()
+
+        # Keep task if user selects No
+        if response != "Yes":
+            return
+
+    # Remove task only after confirmation
+    todos_data.pop(index_to_remove)
+    frame.destroy()
+
+    # Reposition remaining tasks
+    for i, (todo, checkbox, frame) in enumerate(todos_data):
+        frame.grid(row=i, column=0, padx=5, pady=5)
+
     show_progress()
     save_todos()
+
 
 # ---> Edit todo
 def edit_todo(index):
