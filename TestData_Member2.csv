@@ -1,0 +1,9 @@
+data_id,test_case_id,test_type,input_value,second_value,expected_result
+D01,TC01,add_valid,Complete assignment,,Task is added
+D02,TC02,add_empty,,,Task is not added
+D03,TC03,edit_valid,Old task,Study Python,Task text becomes Study Python
+D04,TC04,remove_no,Incomplete task,No,Task remains in list
+D05,TC05,progress_empty,,,0 of 0 done
+D06,TC06,progress_incomplete,Task A,0,0 of 1 done
+D07,TC07,progress_completed,Task A,1,1 of 1 done
+D08,TC08,save_one,Read book,1,Task name and status are saved
