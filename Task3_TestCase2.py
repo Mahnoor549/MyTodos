@@ -3,6 +3,7 @@ import csv
 import os
 import tempfile
 import customtkinter
+import pytest
 from unittest.mock import patch, MagicMock
 
 original_mainloop = customtkinter.CTk.mainloop
@@ -24,23 +25,18 @@ def read_test_data():
 data = read_test_data()
 
 
-class ProgressTrackingTests(unittest.TestCase):
+@pytest.mark.progress
+@pytest.mark.parametrize(
+    "data_id",
+    ["D05", "D06", "D07"],
+    ids=["empty", "partial", "complete"]
+)
+def test_progress_tracking(data_id):
+    row = data[data_id]
 
-    def setUp(self):
+    if data_id == "D05":
         mytodos.todos_data = []
-        mytodos.progress_button = MagicMock()
-
-    def test_TC05_progress_empty(self):
-        expected = data["D05"]["expected_result"]
-
-        mytodos.show_progress()
-
-        mytodos.progress_button.configure.assert_called_once_with(
-            text=expected
-        )
-
-    def test_TC06_progress_incomplete(self):
-        row = data["D06"]
+    else:
         checkbox = MagicMock()
         checkbox.get.return_value = int(row["second_value"])
 
@@ -48,33 +44,20 @@ class ProgressTrackingTests(unittest.TestCase):
             (row["input_value"], checkbox, MagicMock())
         ]
 
-        mytodos.show_progress()
+    mytodos.show_progress()
 
-        mytodos.progress_button.configure.assert_called_once_with(
-            text=row["expected_result"]
-        )
+    assert (
+        mytodos.progress_button.cget("text")
+        == row["expected_result"]
+    )
 
-    def test_TC07_progress_completed(self):
-        row = data["D07"]
-        checkbox = MagicMock()
-        checkbox.get.return_value = int(row["second_value"])
-
-        mytodos.todos_data = [
-            (row["input_value"], checkbox, MagicMock())
-        ]
-
-        mytodos.show_progress()
-
-        mytodos.progress_button.configure.assert_called_once_with(
-            text=row["expected_result"]
-        )
-
-
+@pytest.mark.file
 class FileHandlingTests(unittest.TestCase):
 
     def setUp(self):
         mytodos.todos_data = []
 
+    @pytest.mark.order(8)
     def test_TC08_save_and_load_task(self):
         row = data["D08"]
         old_directory = os.getcwd()
